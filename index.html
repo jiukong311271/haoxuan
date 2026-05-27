@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>好选 - 出行决策助手</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="phone">
+  <!-- ====== SPLASH ====== -->
+  <div class="screen active splash" id="splash-screen">
+    <div class="logo-bg">🤝</div>
+    <h1>好选</h1>
+    <p class="subtitle">出行决策助手<br>独自出行 · 结伴聚会 · 高效匹配</p>
+    <button class="btn-primary">微信一键登录</button>
+    <button class="btn-outline">手机号登录</button>
+    <div class="feature-tags">
+      <span>🏃 运动</span><span>🍜 美食</span><span>🎮 游戏</span>
+      <span>📷 拍照</span><span>✈️ 旅行</span><span>🐾 宠物</span>
+    </div>
+  </div>
+
+  <!-- ====== HOME ====== -->
+  <div class="screen" id="screen-home">
+    <div class="status-bar"><span class="time">9:41</span><span>5G ▮▮▮▮ 🔋</span></div>
+    <div class="top-bar">
+      <div class="location-pin">📍 杭州·西湖区</div>
+      <div class="search-bar">🔍 搜索活动或搭子...</div>
+      <div class="notify-btn">🔔<span class="badge">3</span></div>
+    </div>
+    <div class="category-scroll" id="categoryChips"></div>
+    <div class="feed-list" id="feedList"></div>
+  </div>
+
+  <!-- ====== MAP ====== -->
+  <div class="screen" id="screen-map">
+    <div class="status-bar"><span class="time">9:41</span><span>5G ▮▮▮▮ 🔋</span></div>
+    <div id="map-container"></div>
+    <div class="map-search-overlay">🔍 搜索地点或活动</div>
+    <button class="locate-btn-overlay" onclick="locateMe()">📍</button>
+    <div class="map-info-card" id="mapInfoCard">
+      <div class="drag-handle"></div>
+      <div class="section-title">附近活动</div>
+    </div>
+  </div>
+
+  <!-- ====== FRIENDS ====== -->
+  <div class="screen" id="screen-friends">
+    <div class="status-bar"><span class="time">9:41</span><span>5G ▮▮▮▮ 🔋</span></div>
+    <div class="page-header">
+      <div class="ph-title">朋友</div>
+      <div class="ph-actions">
+        <button class="icon-btn" style="position:relative">🔔<span class="badge">2</span></button>
+        <button class="icon-btn">➕</button>
+      </div>
+    </div>
+    <div class="friend-search">🔍 搜索朋友</div>
+    <div class="online-strip" id="onlineStrip"></div>
+    <div class="friend-list" id="friendList"></div>
+  </div>
+
+  <!-- ====== PROFILE ====== -->
+  <div class="screen" id="screen-profile">
+    <div class="status-bar"><span class="time">9:41</span><span>5G ▮▮▮▮ 🔋</span></div>
+    <div class="profile-header-area">
+      <div class="ph-actions">
+        <button class="icon-btn">⚙️</button><button class="icon-btn">📤</button>
+      </div>
+      <div class="avatar-area">
+        <div class="avatar-wrapper">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 88 88'%3E%3Ccircle fill='%23FFB74D' cx='44' cy='44' r='44'/%3E%3C/svg%3E" style="width:88px;height:88px;border-radius:50%;">
+          <div class="edit-badge">📷</div>
+        </div>
+        <div class="profile-name">小李</div>
+        <div class="profile-id">ID: haoxuan_2024</div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-item"><div class="stat-num">23</div><div class="stat-label">组局</div></div>
+        <div class="stat-item"><div class="stat-num">156</div><div class="stat-label">搭友</div></div>
+        <div class="stat-item"><div class="stat-num">12</div><div class="stat-label">收藏</div></div>
+      </div>
+    </div>
+    <div class="menu-section" id="menuSection"></div>
+  </div>
+
+  <!-- ====== TAB BAR（全局唯一，不在任何screen内） ====== -->
+  <div class="tab-bar">
+    <button class="tab-item active" data-tab="home">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3 10L12 3L21 10V20H15V14H9V20H3V10Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>首页</span>
+    </button>
+    <button class="tab-item" data-tab="map">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C8 2 5 5.5 5 10C5 16 12 22 12 22C12 22 19 16 19 10C19 5.5 16 2 12 2Z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="10" r="3" fill="currentColor"/></svg>
+      <span>探索</span>
+    </button>
+    <button class="tab-item" data-tab="friends">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="8" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 20Q2 15 8 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M22 20Q22 15 16 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span>朋友</span>
+    </button>
+    <button class="tab-item" data-tab="profile">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M4 22Q4 16 12 16Q20 16 20 22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span>我的</span>
+    </button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
