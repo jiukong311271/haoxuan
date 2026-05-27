@@ -17,8 +17,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 .tab-item.active{color:var(--primary);font-weight:600}
 
 /* ====== SPLASH ====== */
-.splash{background:linear-gradient(180deg,#FFF5F5,#FFF,#FFF8F8);display:flex;align-items:center;justify-content:center;text-align:center;gap:12px;padding:40px 32px}
-.splash.active{display:flex}
+.splash{background:linear-gradient(180deg,#FFF5F5,#FFF,#FFF8F8)}.splash.active{display:flex;align-items:center;justify-content:center;text-align:center;gap:12px;padding:40px 32px}
 .splash .logo-bg{width:120px;height:120px;background:linear-gradient(135deg,#FF6B6B,#FF8E53);border-radius:32px;display:flex;align-items:center;justify-content:center;font-size:56px;box-shadow:0 16px 40px rgba(255,107,107,.3);transform:rotate(-5deg);animation:float 3s ease-in-out infinite;color:#fff}
 @keyframes float{0%,100%{transform:rotate(-5deg) translateY(0)}50%{transform:rotate(-5deg) translateY(-8px)}}
 .splash h1{font-size:32px;font-weight:800;margin-top:8px;background:linear-gradient(135deg,#FF6B6B,#FF8E53);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
