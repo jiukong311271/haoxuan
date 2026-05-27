@@ -82,35 +82,60 @@ function showAIInput(){
 // ==================== Tab 导航 ====================
 function switchTab(tab){
   currentTab=tab;
-  ['home','map','friends','profile','splash'].forEach(function(t){$('screen-'+t).classList.remove('active');});
-  $('screen-'+tab).classList.add('active');
+  ['home','map','friends','profile'].forEach(function(t){
+    var s=$('screen-'+t); if(s)s.classList.remove('active');
+  });
+  var splash=$('splash-screen'); if(splash)splash.classList.remove('active');
+  var target=$('screen-'+tab); if(target)target.classList.add('active');
   document.querySelectorAll('.tab-item').forEach(function(el,i){
     el.classList.toggle('active',['home','map','friends','profile'].indexOf(tab)===i);
   });
   if(tab==='friends'&&!friendsRendered){renderFriends();friendsRendered=true;}
   if(tab==='profile'&&!profileRendered){renderProfile();profileRendered=true;}
-  if(tab==='map'){setTimeout(function(){if(map)initMap();},300);}
+  if(tab==='map'){setTimeout(function(){initMap();},300);}
 }
 
-// ==================== 高德地图 ====================
+// ==================== 地图（高德优先，Leaflet兜底） ====================
+var mapRetry=0;
 function initMap(){
-  if(map)return; // 已经初始化过
-  if(typeof AMap==='undefined'){setTimeout(initMap,200);return;}
-  map=new AMap.Map('map-container',{zoom:13,center:[120.155,30.274],viewMode:'2D'});
-  map.setDefaultCursor('pointer');
+  if(map)return;
+  var el=$('map-container'); if(!el)return;
+
+  // 高德地图可用
+  if(typeof AMap!=='undefined'){
+    try{
+      map=new AMap.Map('map-container',{zoom:13,center:[120.155,30.274],viewMode:'2D'});
+      map.setDefaultCursor('pointer');
+      MAP_PINS.forEach(function(p){
+        var content='<div style="padding:4px 8px;background:#fff;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.15);font-size:12px;white-space:nowrap;border-left:3px solid '+p.color+';">'+p.label+'</div>';
+        var marker=new AMap.Marker({position:[p.lng,p.lat],content:content,offset:new AMap.Pixel(0,-20)});
+        marker.on('click',function(){map.setZoomAndCenter(16,[p.lng,p.lat]);});
+        marker.setMap(map);
+      });
+      renderMapInfo();
+      return;
+    }catch(e){console.log('AMap error:',e);}
+  }
+
+  // 重试高德（最多等3秒）
+  if(mapRetry<6){mapRetry++;setTimeout(initMap,500);return;}
+
+  // 高德不可用，加载Leaflet兜底
+  if(typeof L==='undefined'){
+    var css=document.createElement('link');css.rel='stylesheet';css.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    var js=document.createElement('script');js.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    js.onload=initLeafletMap;document.head.appendChild(css);document.head.appendChild(js);
+  }else{initLeafletMap();}
+}
+
+function initLeafletMap(){
+  if(map)return;
+  var el=$('map-container');el.innerHTML='';
+  map=L.map(el,{zoomControl:true,attributionControl:false}).setView([30.274,120.155],13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
   MAP_PINS.forEach(function(p){
-    var content='<div style="padding:4px 8px;background:#fff;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.15);font-size:12px;white-space:nowrap;border-left:3px solid '+p.color+';">'+p.label+'</div>';
-    var marker=new AMap.Marker({position:[p.lng,p.lat],content:content,offset:new AMap.Pixel(0,-20)});
-    marker.on('click',function(){map.setZoomAndCenter(16,[p.lng,p.lat]);});
-    marker.setMap(map);
-  });
-  // 定位控件
-  AMap.plugin('AMap.Geolocation',function(){
-    var geo=new AMap.Geolocation({enableHighAccuracy:true,timeout:5000});
-    map.addControl(geo);
-    geo.getCurrentPosition(function(status,result){
-      if(status==='complete'){map.setCenter([result.position.lng,result.position.lat]);}
-    });
+    var icon=L.divIcon({html:'<div style="width:32px;height:32px;background:'+p.color+';border-radius:50%50%50%0;transform:rotate(-45deg);box-shadow:0 4px 12px rgba(0,0,0,.2);border:3px solid #FFF;"></div>',iconSize:[32,32],iconAnchor:[16,32]});
+    L.marker([p.lat,p.lng],{icon:icon}).addTo(map).bindPopup('<b>'+p.label+'</b><br>'+p.detail).on('click',function(){map.flyTo([p.lat,p.lng],16,{duration:0.8});});
   });
   renderMapInfo();
 }
